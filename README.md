@@ -33,6 +33,14 @@ Su propósito es simular una tienda online completa, con funcionalidades tanto p
 
 ---
 
+## 👨‍💻 Integrantes del equipo
+
+- **Nicolas Barbosa Gualteros** – [nbarbosag@unbosque.edu.co](mailto:nbarbosag@unbosque.edu.co)
+- **Marian Daniela Castaño Torres** – [mdcastanot@unbosque.edu.co](mailto:mdcastanot@unbosque.edu.co)
+- **Andrés Felipe Jarro Meza** – [ajarro@unbosque.edu.co](mailto:ajarro@unbosque.edu.co)
+
+---
+
 📚 Ingeniería de Sistemas  
 📆 2025-1  
 👨‍🏫 Prof. Wilson Rojas Reales
