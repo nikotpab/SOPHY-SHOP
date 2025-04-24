@@ -5,8 +5,6 @@ Su propósito es simular una tienda online completa, con funcionalidades tanto p
 
 ---
 
----
-
 ## ✨ Funcionalidades principales
 
 - 👤 **Registro e inicio de sesión** con validación y recuperación de contraseña por correo
