@@ -1,25 +1,22 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
-  MDBContainer,
-  MDBInput,
-  MDBBtn,
-  MDBModal,
-  MDBModalDialog,
-  MDBModalContent,
-  MDBModalHeader,
-  MDBModalTitle,
-  MDBModalBody,
-  MDBModalFooter
+  MDBContainer, MDBInput, MDBBtn, MDBModal,
+  MDBModalDialog, MDBModalContent, MDBModalHeader,
+  MDBModalTitle, MDBModalBody, MDBModalFooter
 } from 'mdb-react-ui-kit';
 
 function Component() {
   const [showModal, setShowModal] = useState(false);
 
+
+  
+
   return (
     <MDBContainer className="p-3 my-5 d-flex flex-column w-50">
       <MDBInput wrapperClass='mb-4' label='Correo electrónico' id='form1' type='email' />
       <MDBInput wrapperClass='mb-4' label='Contraseña' id='form2' type='password' />
-      <MDBBtn className="mb-4">Iniciar sesión</MDBBtn>
+      <MDBBtn className="mb-4" onClick={() => window.location.href = '/user/main_page.html'}>Iniciar sesión</MDBBtn>
 
       <div className="text-center">
         <p>
@@ -46,13 +43,13 @@ function Component() {
               <MDBInput className='mb-3' label='Número de cédula' type='number' />
               <MDBInput className='mb-3' label='Dirección' type='text' />
               <MDBInput className='mb-3' label='Correo electrónico' type='email' />
-              <MDBInput className='mb-3' label='Contraseña' type='password' />
+              <MDBInput className='mb-3' label='Contraseña' type='password' minLength={6} maxLength={8} />
             </MDBModalBody>
             <MDBModalFooter>
               <MDBBtn color='secondary' onClick={() => setShowModal(false)}>
                 Cerrar
               </MDBBtn>
-              <MDBBtn>Registrarse</MDBBtn>
+              <MDBBtn>Registrarme</MDBBtn>
             </MDBModalFooter>
           </MDBModalContent>
         </MDBModalDialog>
