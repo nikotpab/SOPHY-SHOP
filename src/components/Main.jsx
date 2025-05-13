@@ -8,29 +8,31 @@ import {
 
 function Component() {
   const [showModal, setShowModal] = useState(false);
-
-
   
-
   return (
+    
     <MDBContainer className="p-3 my-5 d-flex flex-column w-50">
+   
+ 
+
+
       <MDBInput wrapperClass='mb-4' label='Correo electrónico' id='form1' type='email' />
       <MDBInput wrapperClass='mb-4' label='Contraseña' id='form2' type='password' />
-      <MDBBtn className="mb-4" onClick={() => window.location.href = '/user/main_page.html'}>Iniciar sesión</MDBBtn>
+      <MDBBtn color="dark" className="mb-4" onClick={() => window.location.href = '/user/main_page.html'}>Iniciar sesión</MDBBtn>
 
       <div className="text-center">
         <p>
           ¿Desea registrarse?{' '}
-          <button
+          <button 
             className="btn btn-link p-0"
-            style={{ textDecoration: 'underline', background: 'none', border: 'none' }}
+            style={{ textDecoration: 'underline', background: 'none', border: 'none', color:'#343a40'}}
             onClick={() => setShowModal(true)}
           >
             Registrarse
           </button>
         </p>
       </div>
-
+   
       <MDBModal open={showModal} setOpen={setShowModal} tabIndex='-1'>
         <MDBModalDialog>
           <MDBModalContent>
@@ -43,13 +45,12 @@ function Component() {
               <MDBInput className='mb-3' label='Número de cédula' type='number' />
               <MDBInput className='mb-3' label='Dirección' type='text' />
               <MDBInput className='mb-3' label='Correo electrónico' type='email' />
-              <MDBInput className='mb-3' label='Contraseña' type='password' minLength={6} maxLength={8} />
             </MDBModalBody>
             <MDBModalFooter>
-              <MDBBtn color='secondary' onClick={() => setShowModal(false)}>
+              <MDBBtn style={{ backgroundColor: '#969494', color: 'white' }} onClick={() => setShowModal(false)}>
                 Cerrar
               </MDBBtn>
-              <MDBBtn>Registrarme</MDBBtn>
+              <MDBBtn color='dark'>Registrarme</MDBBtn>
             </MDBModalFooter>
           </MDBModalContent>
         </MDBModalDialog>
