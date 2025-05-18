@@ -14,8 +14,6 @@ function Component() {
     <MDBContainer className="p-3 my-5 d-flex flex-column w-50">
    
  
-
-
       <MDBInput wrapperClass='mb-4' label='Correo electrónico' id='form1' type='email' />
       <MDBInput wrapperClass='mb-4' label='Contraseña' id='form2' type='password' />
       <MDBBtn color="dark" className="mb-4" onClick={() => window.location.href = '/user/main_page.html'}>Iniciar sesión</MDBBtn>

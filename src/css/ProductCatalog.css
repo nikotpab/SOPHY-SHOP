@@ -1,0 +1,97 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Playfair Display', serif;
+  font-size: 100px;
+}
+.price-filter{
+position: absolute;
+top: 250px;
+left: -255px;
+font-family: 'Playfair Display', serif;
+font-size: 16px;
+}
+
+.search-bar {
+  position: absolute;
+  top: 150px;      
+  right: 1150px;      
+  font-family: 'Playfair Display', serif;
+  padding: 10px 16px;
+  font-size: 16px;
+  border: 2px solid #ffffff;
+  border-radius: 25px;
+  outline: none;
+  text-align: left;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  width: 250px;
+}
+
+.product-catalog {
+    position: relative;
+    margin-left: 300px;
+    font-family: 'Playfair Display', serif;
+    max-width: 1200px;
+    font-size: 20px;
+    padding: 20px;
+  }
+
+.product-image {
+    width: 300px;     
+    height: 300px;   
+    object-fit: cover; 
+    border-radius: 100px;
+    text-align: center;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    }
+  
+  
+  .product-catalog h1 {
+    top: 200px;
+    text-align: center;
+    margin-bottom: 30px;
+    color: #000000;
+  }
+
+  .logo {
+    width: 380px;
+    height: 200px;
+    top: -30px;
+    right: 1150px;
+    position: absolute;
+  }
+  
+  .products-container {
+  
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+  }
+  
+  .product-card {
+    background-color: #ffffff;
+    border: 1px solid #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    transition: box-shadow 0.3s ease;
+  }
+  
+  .product-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .product-name {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    font-weight: 400;
+    color: #222;
+  }
+  
+  .product-price {
+    margin: 0;
+    font-size: 16px;
+    font-weight: bold;
+    color: #000;
+  }
