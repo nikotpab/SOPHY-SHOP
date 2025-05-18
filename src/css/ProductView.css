@@ -1,0 +1,275 @@
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.loading-text {
+  animation: pulse 2s infinite;
+  color: #4a5568;
+  font-size: 1.5rem;
+}
+
+.error-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.error-text {
+  color: #e53e3e;
+  font-size: 1.5rem;
+  font-weight: 500;
+}
+
+.product-detail-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.notification {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  padding: 1rem 1.5rem;
+  background: #f6e05e;
+  color: #975a16;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  font-size: 0.9rem;
+}
+
+.breadcrumb-link {
+  color: #4a5568;
+  transition: color 0.3s;
+}
+
+.breadcrumb-link:hover {
+  color: #2d3748;
+}
+
+.breadcrumb-current {
+  color: #2d3748;
+  font-weight: 500;
+  max-width: 300px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+@media (min-width: 768px) {
+  .product-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.image-section {
+  background: white;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.image-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.product-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  transition: transform 0.3s;
+}
+
+.product-image:hover {
+  transform: scale(1.03);
+}
+
+.info-section {
+  padding: 1rem;
+}
+
+.product-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #2d3748;
+}
+
+.product-price {
+  font-size: 1.5rem;
+  color: #2d3748;
+  margin-bottom: 2rem;
+}
+
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.add-to-cart {
+  background: #919396;
+  color: white;
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.add-to-cart:hover:not(.disabled) {
+  background: #3e3f41;
+}
+
+.add-to-cart.disabled {
+  background: #cbd5e0;
+  cursor: not-allowed;
+}
+
+.back-button {
+  background: #e2e8f0;
+  color: #4a5568;
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.back-button:hover {
+  background: #cbd5e0;
+}
+
+.view-cart {
+  background: #919396;
+  color: white;
+  padding: 0.8rem 1.5rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  transition: background 0.3s, color 0.3s; 
+}
+
+.view-cart:hover {
+  background: #3e3f41;
+  color: #fffdfd; 
+}
+
+
+.stock-status {
+  margin-bottom: 2rem;
+}
+
+.status {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.status.in-stock {
+  background: #c6f6d5;
+  color: #3e3f41;
+}
+
+.status.out-of-stock {
+  background: #fed7d7;
+  color: #742a2a;
+}
+
+.description-section {
+  border-top: 2px solid #000001;
+  padding-top: 2rem;
+}
+
+.tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.tab {
+  background: none;
+  border: none;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  color: #4a5568;
+  font-size: 1rem;
+  transition: color 0.3s;
+}
+
+.tab.active {
+  color: #2d3748;
+  border-bottom: 2px solid #000000;
+}
+
+.product-description {
+  color: #4a5568;
+  line-height: 1.6;
+  font-size: 1.1rem;
+}
+
+.tracklist {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.side h3 {
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+}
+
+.tracklist ol {
+  list-style: decimal;
+  padding-left: 1.5rem;
+  color: #4a5568;
+}
+
+.tracklist li {
+  margin-bottom: 0.3rem;
+}
+
+.home-logo {
+  position: absolute;
+  top: -10px;
+  right: -60px;
+}
+
+
+.logo-image {
+  width: 290px;
+  height: 150px;
+  transition: transform 0.3s;
+  
+
+}
+
+.logo-image:hover {
+  transform: scale(1.1);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
