@@ -1,0 +1,373 @@
+:root {
+    --primary: #4f46e5;
+    --primary-light: #ebe9ff;
+    --primary-dark: #3730a3;
+    --success: #10b981;
+    --success-light: #d1fae5;
+    --warning: #f59e0b;
+    --warning-light: #fef3c7;
+    --danger: #ef4444;
+    --danger-light: #fee2e2;
+    --info: #3b82f6;
+    --info-light: #dbeafe;
+    --dark: #1f2937;
+    --gray: #6b7280;
+    --light-gray: #f3f4f6;
+    --lighter-gray: #f9fafb;
+    --white: #ffffff;
+    --border-radius: 12px;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --transition: all 0.3s ease;
+  }
+  
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  body {
+    font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--lighter-gray);
+    color: var(--dark);
+    line-height: 1.5;
+  }
+  
+
+  .dashboard-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+  
+
+  .dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+  
+  .title-section h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--dark);
+  }
+  
+  .subtitle {
+    font-size: 1rem;
+    color: var(--gray);
+  }
+  
+  .btn-regresarr {
+    position: absolute;
+    top: 300px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--white);
+    color: var(--dark);
+    border: 1px solid var(--light-gray);
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .btn-regresarr:hover {
+    background-color: var(--light-gray);
+    box-shadow: var(--shadow);
+  }
+  
+  /* Grid de estadísticas */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .stat-card {
+    background-color: var(--white);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    transition: var(--transition);
+  }
+  
+  .stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+  }
+  
+  .stat-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    margin-bottom: 0.5rem;
+  }
+  
+  .sales-icon {
+    background-color: var(--primary-light);
+    color: var(--primary);
+  }
+  
+  .revenue-icon {
+    background-color: var(--success-light);
+    color: var(--success);
+  }
+  
+  .orders-icon {
+    background-color: var(--warning-light);
+    color: var(--warning);
+  }
+  
+  .customers-icon {
+    background-color: var(--info-light);
+    color: var(--info);
+  }
+  
+  .stat-content {
+    flex: 1;
+  }
+  
+  .stat-content h3 {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--gray);
+    margin-bottom: 0.5rem;
+  }
+  
+  .stat-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 0.25rem;
+  }
+  
+  .sales-value {
+    color: var(--primary);
+  }
+  
+  .revenue-value {
+    color: var(--success);
+  }
+  
+  .orders-value {
+    color: var(--warning);
+  }
+  
+  .customers-value {
+    color: var(--info);
+  }
+  
+  .stat-desc {
+    font-size: 0.75rem;
+    color: var(--gray);
+  }
+  
+  /* Contenedor de gráfica */
+  .chart-container {
+    background-color: var(--white);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 2rem;
+  }
+  
+  .chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .chart-header h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--dark);
+  }
+  
+  .chart-legend {
+    display: flex;
+    gap: 1.5rem;
+  }
+  
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--dark);
+  }
+  
+  .legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+  
+  .ventas-color {
+    background-color: var(--primary);
+  }
+  
+  .ingresos-color {
+    background-color: var(--success);
+  }
+  
+  /* Tooltip personalizado */
+  .custom-tooltip {
+    background-color: var(--white);
+    border: 1px solid var(--light-gray);
+    border-radius: 8px;
+    padding: 0.75rem;
+    box-shadow: var(--shadow);
+  }
+  
+  .tooltip-date {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--dark);
+  }
+  
+  .tooltip-ventas, 
+  .tooltip-ingresos {
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  .tooltip-ventas {
+    color: var(--primary);
+  }
+  
+  .tooltip-ingresos {
+    color: var(--success);
+  }
+  
+  .tooltip-ventas .label,
+  .tooltip-ingresos .label {
+    color: var(--gray);
+    margin-right: 0.25rem;
+  }
+  
+  /* Tabla de compras */
+  .purchases-table-container {
+    background-color: var(--white);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+  }
+  
+  .purchases-table-container h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--dark);
+    margin-bottom: 1.5rem;
+  }
+  
+  .table-wrapper {
+    overflow-x: auto;
+  }
+  
+  .purchases-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+  
+  .purchases-table th {
+    background-color: var(--lighter-gray);
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--gray);
+    text-align: left;
+    padding: 1rem;
+    border-bottom: 1px solid var(--light-gray);
+  }
+  
+  .purchases-table th:first-child {
+    border-top-left-radius: 8px;
+  }
+  
+  .purchases-table th:last-child {
+    border-top-right-radius: 8px;
+  }
+  
+  .purchases-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--light-gray);
+    font-size: 0.875rem;
+    color: var(--dark);
+  }
+  
+  .purchases-table tr:last-child td {
+    border-bottom: none;
+  }
+  
+  .purchases-table tr:last-child td:first-child {
+    border-bottom-left-radius: 8px;
+  }
+  
+  .purchases-table tr:last-child td:last-child {
+    border-bottom-right-radius: 8px;
+  }
+  
+  .purchases-table tr:hover {
+    background-color: var(--lighter-gray);
+  }
+  
+  .price-cell {
+    font-weight: 600;
+    color: var(--success);
+  }
+  
+  /* Responsive */
+  @media (max-width: 992px) {
+    .stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .dashboard-container {
+      padding: 1rem;
+    }
+    
+    .dashboard-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    
+    .btn-regresarr {
+      align-self: flex-start;
+    }
+    
+    .chart-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .stats-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .title-section h1 {
+      font-size: 1.5rem;
+    }
+  }

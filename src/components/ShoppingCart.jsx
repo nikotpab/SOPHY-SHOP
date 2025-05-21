@@ -56,7 +56,7 @@ const ShoppingCart = () => {
             <span>{formatPrice(calculateTotal())}</span>
           </div>
           
-          <button
+          <button  onClick={() => navigate('/pago')}
             className="finalizar-compra"
             disabled={cartItems.length === 0}
           >
