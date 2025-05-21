@@ -11,8 +11,10 @@ import cd2 from '../images/cd2.webp';
 import cd3 from '../images/cd3.webp';
 import cd4 from '../images/cd4.webp';
 import logo from '../images/logo192.png';
+import { useProducts } from './ProductContext';
 
 const ProductCatalog = () => {
+  const { productos } = useProducts();
   const [searchTerm, setSearchTerm] = useState('');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');

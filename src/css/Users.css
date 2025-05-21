@@ -1,0 +1,85 @@
+.tabla-container {
+    padding: 1rem;
+    font-family: sans-serif;
+  }
+  
+
+  
+  .tabla-titulo {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+  }
+  
+  .tabla-scroll {
+    overflow-x: auto;
+  }
+  
+  .tabla {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  
+  .btn-regresar {
+    position: absolute;
+    top: 650px;
+    right: 30px;
+    background-color: #e5e7eb; 
+    color: #1f2937; 
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 1rem;
+    transition: background-color 0.2s ease;
+  }
+  
+  .btn-regresar:hover {
+    background-color: #d1d5db;
+  }
+  
+  .botones-superiores {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .tabla th,
+  .tabla td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  
+  .tabla thead {
+    background-color: #f1f5f9;
+    color: #1e293b;
+  }
+  
+  .tabla tbody tr:hover {
+    background-color: #f9fafb;
+  }
+  
+  .estado {
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+  
+  .estado.activo {
+    background-color: #d1fae5;
+    color: #065f46;
+  }
+  
+  .estado.inactivo {
+    background-color: #fee2e2;
+    color: #991b1b;
+  }
+  
