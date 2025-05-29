@@ -5,7 +5,7 @@ import logo from '../images/logo192.png';
 import { useProducts } from './ProductContext';
 
 const getDefaultImage = (idCategoria) => {
-  // Puedes cambiar estos enlaces por imágenes que correspondan a cada categoría
+
   const categoryImages = {
     1: 'https://via.placeholder.com/200x200?text=Categoría+1',
     2: 'https://via.placeholder.com/200x200?text=Categoría+2',

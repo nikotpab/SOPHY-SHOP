@@ -19,7 +19,15 @@ export const CartProvider = ({ children }) => {
       return false;
     }
 
-    setCartItems([...cartItems, { ...product, quantity: 1 }]);
+    // Asegurar que el precio sea un número
+    const productWithPrice = {
+      ...product,
+      price: typeof product.price === 'string' ? 
+             parseFloat(product.price) : 
+             product.price
+    };
+
+    setCartItems([...cartItems, { ...productWithPrice, quantity: 1 }]);
     return true;
   };
 
@@ -27,17 +35,36 @@ export const CartProvider = ({ children }) => {
     setCartItems(cartItems.filter(item => item.id !== productId));
   };
 
+  const clearCart = () => {
+    setCartItems([]);
+  };
+
+  const updateQuantity = (productId, newQuantity) => {
+    setCartItems(cartItems.map(item => 
+      item.id === productId ? { ...item, quantity: newQuantity } : item
+    ));
+  };
+
   return (
     <CartContext.Provider value={{ 
       cartItems, 
       addToCart, 
       removeFromCart, 
+      clearCart, // Función añadida
+      updateQuantity, // Función útil para modificar cantidades
       notification,
-      setNotification
+      setNotification,
+      setCartItems
     }}>
       {children}
     </CartContext.Provider>
   );
 };
 
-export const useCart = () => useContext(CartContext);
+export const useCart = () => {
+  const context = useContext(CartContext);
+  if (!context) {
+    throw new Error('useCart debe usarse dentro de un CartProvider');
+  }
+  return context;
+};
