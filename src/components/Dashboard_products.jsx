@@ -5,7 +5,7 @@ import '../css/Dashboard_products.css';
 const ProductAdmin = () => {
   document.title = "Administración de productos";
 
-  // Estados del componente
+
   const [showForm, setShowForm] = useState(false);
   const [products, setProducts] = useState([]);
   const [formData, setFormData] = useState({

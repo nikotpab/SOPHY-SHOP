@@ -13,57 +13,98 @@ import { useNavigate } from "react-router";
 import { ArrowLeft, TrendingUp, DollarSign, ShoppingBag, Users } from 'lucide-react';
 import '../css/Statics.css';
 
-const generateChartData = () => {
-  const now = new Date();
-  return Array.from({ length: 7 }).map((_, i) => {
-    const date = new Date(now.getTime() - (6 - i) * 24 * 60 * 60 * 1000);
-    const ventas = Math.floor(Math.random() * 1000) + 200;
-    return {
-      fecha: date.toLocaleDateString("es-CO", { day: "numeric", month: "short" }),
-      ventas,
-      ingresos: parseFloat((ventas * (Math.random() * 30 + 20)).toFixed(2)),
-    };
-  });
-};
-
-const generatePurchases = (ventas) => {
-  const productos = [
-    { id: 1, nombre: "Camisa", precio: 29.99 },
-    { id: 2, nombre: "Pantalón", precio: 49.99 },
-    { id: 3, nombre: "Zapatos", precio: 79.99 },
-    { id: 4, nombre: "Gorra", precio: 19.99 },
-  ];
-
-  const compras = [];
-  for (let i = 1; i <= Math.floor(ventas / 100); i++) {
-    const prod = productos[Math.floor(Math.random() * productos.length)];
-    compras.push({
-      purchaseId: i,
-      productoId: prod.id,
-      nombreProducto: prod.nombre,
-      correo: `cliente${i}@example.com`,
-      valor: prod.precio,
-    });
-  }
-  return compras;
-};
-
 export default function DashboardVentas() {
   document.title = 'Estadísticas';
   const navigate = useNavigate();
-  
+
   const handleRegresar = () => {
     navigate(-1);
   };
-  
-  const [chartData, setChartData] = useState(generateChartData());
-  const [purchases, setPurchases] = useState([]);
+
+  const [ventasData, setVentasData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const newChartData = generateChartData();
-    setChartData(newChartData);
-    setPurchases(generatePurchases(newChartData[newChartData.length - 1].ventas));
+    const fetchVentasData = async () => {
+      try {
+        const response = await fetch('http://localhost:8181/detalleVenta/getAll');
+        if (!response.ok) {
+          throw new Error('Error al obtener los datos de ventas');
+        }
+        const data = await response.json();
+        console.log('Datos recibidos:', data); // Para debug
+        setVentasData(data);
+        setLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+
+    fetchVentasData();
   }, []);
+
+  // Procesar datos para estadísticas
+  const processStats = (data) => {
+    // Como no tienes fecha_venta, mostraremos estadísticas totales
+    const totalVentas = data.reduce((sum, v) => sum + (v.cant_comp || v.cantComp || 0), 0);
+    
+    const ingresosTotal = data.reduce((sum, v) => {
+      const cantidad = v.cant_comp || v.cantComp || 0;
+      const valorUnit = v.valor_unit || v.valorUnit || 0;
+      return sum + (cantidad * valorUnit);
+    }, 0);
+
+    // Pedidos únicos (ventas únicas por id_venta)
+    const pedidosUnicos = [...new Set(data.map(v => v.id_venta || v.idVenta))].length;
+
+    // Clientes únicos
+    const clientesUnicos = [...new Set(data.map(v => v.cliente_id || v.clienteId))].length;
+
+    return {
+      totalVentas,
+      ingresosTotal,
+      pedidosUnicos,
+      clientesUnicos,
+      ventasRecientes: data.slice(-10) // Últimos 10 registros
+    };
+  };
+
+  // Generar datos simulados para la gráfica de la semana
+  const generateChartData = (data) => {
+    const now = new Date();
+    const chartData = Array.from({ length: 7 }).map((_, i) => {
+      const date = new Date(now.getTime() - (6 - i) * 24 * 60 * 60 * 1000);
+      
+      // Simulamos distribución de ventas a lo largo de la semana
+      const factor = Math.random() * 0.5 + 0.5; // Factor entre 0.5 y 1
+      const ventasSimuladas = Math.floor(data.length * factor / 7);
+      const ingresosSimulados = data.slice(0, ventasSimuladas).reduce((sum, v) => {
+        const cantidad = v.cant_comp || v.cantComp || 0;
+        const valorUnit = v.valor_unit || v.valorUnit || 0;
+        return sum + (cantidad * valorUnit * factor);
+      }, 0);
+
+      return {
+        fecha: date.toLocaleDateString("es-CO", { day: "numeric", month: "short" }),
+        ventas: ventasSimuladas,
+        ingresos: parseFloat(ingresosSimulados.toFixed(2))
+      };
+    });
+
+    return chartData;
+  };
+
+  const stats = ventasData.length > 0 ? processStats(ventasData) : {
+    totalVentas: 0,
+    ingresosTotal: 0,
+    pedidosUnicos: 0,
+    clientesUnicos: 0,
+    ventasRecientes: []
+  };
+
+  const chartData = ventasData.length > 0 ? generateChartData(ventasData) : [];
 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
@@ -71,16 +112,24 @@ export default function DashboardVentas() {
         <div className="custom-tooltip">
           <p className="tooltip-date">{label}</p>
           <p className="tooltip-ventas">
-            <span className="label">Ventas:</span> {payload[0].value}
+            <span className="label">Ventas:</span> {payload[0]?.value || 0}
           </p>
           <p className="tooltip-ingresos">
-            <span className="label">Ingresos:</span> ${payload[1].value}
+            <span className="label">Ingresos:</span> ${(payload[1]?.value || 0).toLocaleString('es-CO')}
           </p>
         </div>
       );
     }
     return null;
   };
+
+  if (loading) {
+    return <div className="dashboard-container">Cargando datos...</div>;
+  }
+
+  if (error) {
+    return <div className="dashboard-container">Error: {error}</div>;
+  }
 
   return (
     <div className="dashboard-container">
@@ -102,41 +151,41 @@ export default function DashboardVentas() {
             <TrendingUp size={24} />
           </div>
           <div className="stat-content">
-            <h3>Ventas Hoy</h3>
-            <p className="stat-value sales-value">{chartData[chartData.length - 1].ventas}</p>
+            <h3>Total Ventas</h3>
+            <p className="stat-value sales-value">{stats.totalVentas}</p>
             <p className="stat-desc">unidades vendidas</p>
           </div>
         </div>
-        
+
         <div className="stat-card">
           <div className="stat-icon revenue-icon">
             <DollarSign size={24} />
           </div>
           <div className="stat-content">
-            <h3>Ingresos Hoy</h3>
-            <p className="stat-value revenue-value">${chartData[chartData.length - 1].ingresos.toLocaleString('es-CO')}</p>
+            <h3>Ingresos Totales</h3>
+            <p className="stat-value revenue-value">${stats.ingresosTotal.toLocaleString('es-CO')}</p>
             <p className="stat-desc">en moneda local</p>
           </div>
         </div>
-        
+
         <div className="stat-card">
           <div className="stat-icon orders-icon">
             <ShoppingBag size={24} />
           </div>
           <div className="stat-content">
-            <h3>Pedidos</h3>
-            <p className="stat-value orders-value">{purchases.length}</p>
-            <p className="stat-desc">procesados hoy</p>
+            <h3>Pedidos Únicos</h3>
+            <p className="stat-value orders-value">{stats.pedidosUnicos}</p>
+            <p className="stat-desc">procesados</p>
           </div>
         </div>
-        
+
         <div className="stat-card">
           <div className="stat-icon customers-icon">
             <Users size={24} />
           </div>
           <div className="stat-content">
             <h3>Clientes Únicos</h3>
-            <p className="stat-value customers-value">{new Set(purchases.map(p => p.correo)).size}</p>
+            <p className="stat-value customers-value">{stats.clientesUnicos}</p>
             <p className="stat-desc">compradores activos</p>
           </div>
         </div>
@@ -145,7 +194,7 @@ export default function DashboardVentas() {
       {/* Gráfica de líneas de ventas */}
       <div className="chart-container">
         <div className="chart-header">
-          <h2>Ventas Última Semana</h2>
+          <h2>Ventas Última Semana (Simulado)</h2>
           <div className="chart-legend">
             <div className="legend-item">
               <span className="legend-color ventas-color"></span>
@@ -160,19 +209,19 @@ export default function DashboardVentas() {
         <ResponsiveContainer width="100%" height={350}>
           <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis 
-              dataKey="fecha" 
+            <XAxis
+              dataKey="fecha"
               axisLine={{ stroke: "#e0e0e0" }}
               tickLine={false}
               tick={{ fill: "#666", fontSize: 12 }}
             />
-            <YAxis 
+            <YAxis
               yAxisId="left"
               axisLine={{ stroke: "#e0e0e0" }}
               tickLine={false}
               tick={{ fill: "#666", fontSize: 12 }}
             />
-            <YAxis 
+            <YAxis
               yAxisId="right"
               orientation="right"
               axisLine={{ stroke: "#e0e0e0" }}
@@ -180,20 +229,20 @@ export default function DashboardVentas() {
               tick={{ fill: "#666", fontSize: 12 }}
             />
             <Tooltip content={<CustomTooltip />} />
-            <Line 
+            <Line
               yAxisId="left"
-              type="monotone" 
-              dataKey="ventas" 
-              stroke="#4f46e5" 
+              type="monotone"
+              dataKey="ventas"
+              stroke="#4f46e5"
               strokeWidth={3}
               dot={{ stroke: '#4f46e5', strokeWidth: 2, r: 4, fill: '#fff' }}
               activeDot={{ stroke: '#4f46e5', strokeWidth: 2, r: 6, fill: '#fff' }}
             />
-            <Line 
+            <Line
               yAxisId="right"
-              type="monotone" 
-              dataKey="ingresos" 
-              stroke="#10b981" 
+              type="monotone"
+              dataKey="ingresos"
+              stroke="#10b981"
               strokeWidth={3}
               dot={{ stroke: '#10b981', strokeWidth: 2, r: 4, fill: '#fff' }}
               activeDot={{ stroke: '#10b981', strokeWidth: 2, r: 6, fill: '#fff' }}
@@ -204,28 +253,43 @@ export default function DashboardVentas() {
 
       {/* Tabla de compras */}
       <div className="purchases-table-container">
-        <h2>Últimas Compras</h2>
+        <h2>Registros de Ventas</h2>
         <div className="table-wrapper">
           <table className="purchases-table">
             <thead>
               <tr>
-                <th>ID Compra</th>
+                <th>ID</th>
                 <th>ID Producto</th>
-                <th>Producto</th>
-                <th>Correo Comprador</th>
-                <th>Valor</th>
+                <th>Cantidad</th>
+                <th>Valor Unitario</th>
+                <th>Valor Total</th>
+                <th>ID Cliente</th>
               </tr>
             </thead>
             <tbody>
-              {purchases.map((p) => (
-                <tr key={p.purchaseId}>
-                  <td>#{p.purchaseId}</td>
-                  <td>#{p.productoId}</td>
-                  <td>{p.nombreProducto}</td>
-                  <td>{p.correo}</td>
-                  <td className="price-cell">${p.valor}</td>
+              {stats.ventasRecientes.map((v, index) => {
+                const cantidad = v.cant_comp || v.cantComp || 0;
+                const valorUnit = v.valor_unit || v.valorUnit || 0;
+                const valorTotal = cantidad * valorUnit;
+                
+                return (
+                  <tr key={v.id || index}>
+                    <td>#{v.id || 'N/A'}</td>
+                    <td>#{v.id_producto || v.idProducto || 'N/A'}</td>
+                    <td>{cantidad}</td>
+                    <td>${valorUnit.toLocaleString('es-CO')}</td>
+                    <td className="price-cell">${valorTotal.toLocaleString('es-CO')}</td>
+                    <td>#{v.cliente_id || v.clienteId || 'N/A'}</td>
+                  </tr>
+                );
+              })}
+              {stats.ventasRecientes.length === 0 && (
+                <tr>
+                  <td colSpan="6" style={{textAlign: 'center', padding: '20px'}}>
+                    No hay datos de ventas disponibles
+                  </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
