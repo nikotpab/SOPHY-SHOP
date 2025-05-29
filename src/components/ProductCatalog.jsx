@@ -1,48 +1,82 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import '../css/ProductCatalog.css';
-import album1 from '../images/album1.webp';
-import album2 from '../images/album2.webp';
-import album3 from '../images/album3.webp';
-import album4 from '../images/album4.webp';
-import cd1 from '../images/cd1.webp';
-import camiseta1 from '../images/camiseta1.webp';
-import cd2 from '../images/cd2.webp';
-import cd3 from '../images/cd3.webp';
-import cd4 from '../images/cd4.webp';
 import logo from '../images/logo192.png';
 import { useProducts } from './ProductContext';
+
+const getDefaultImage = (idCategoria) => {
+  // Puedes cambiar estos enlaces por imágenes que correspondan a cada categoría
+  const categoryImages = {
+    1: 'https://via.placeholder.com/200x200?text=Categoría+1',
+    2: 'https://via.placeholder.com/200x200?text=Categoría+2',
+    3: 'https://via.placeholder.com/200x200?text=Categoría+3'
+  };
+
+  return categoryImages[idCategoria] || 'https://via.placeholder.com/200x200?text=Sin+Imagen';
+};
 
 const ProductCatalog = () => {
   const { productos } = useProducts();
   const [searchTerm, setSearchTerm] = useState('');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [products, setProducts] = useState([]);
 
   useEffect(() => {
     document.title = "Catálogo";
     document.body.style.backgroundColor = '#f3f2f2';
+    
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch('http://localhost:8181/producto/getAll');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+
+        const productsWithImages = data.map(product => {
+          const imageUrl = product.fotoProducto 
+            ? product.fotoProducto.startsWith('http') 
+              ? product.fotoProducto 
+              : `http://localhost:8080/images/${product.fotoProducto}` 
+            : getDefaultImage(product.idCategoria);
+
+          return {
+            ...product,
+            imageUrl
+          };
+        });
+        
+        setProducts(productsWithImages);
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching products:", err);
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
   }, []);
 
-  const products = [
-    { icon: album1, id: 1, name: 'Only They Could Have Made This Album LP - Importado', price: 152320 },
-    { icon: album2, id: 2, name: 'Portishead 2LP (Reedición 2016) - Importado', price: 240380 },
-    { icon: album3, id: 3, name: 'VIRGIN GATEFOLD LP + TARJETA FIRMADA - Importado', price: 169000 },
-    { icon: album4, id: 4, name: 'Alligator Bites Never Heal Vinilo Blanco Exclusivo - Importado', price: 130900 },
-    { icon: cd1, id: 5, name: 'Sincerely, CD + Art Card Firmada - Importado', price: 99960 },
-    { icon: camiseta1, id: 6, name: 'Milagro Camiseta', price: 142800 },
-    { icon: cd2, id: 7, name: "Short n' Sweet (Deluxe) CD - Importado", price: 61900 },
-    { icon: cd3, id: 8, name: 'Watch The Throne (CD Estándar) - Importado', price: 60690 },
-    { icon: cd4, id: 9, name: 'In Utero 30th Anniversary 2CD Deluxe - Importado', price: 142800 },
-  ];
-
   const filteredProducts = products.filter(product => {
-    const matchesName = product.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesMinPrice = minPrice === '' || product.price >= parseFloat(minPrice);
-    const matchesMaxPrice = maxPrice === '' || product.price <= parseFloat(maxPrice);
+    const matchesName = product.nombre.toLowerCase().includes(searchTerm.toLowerCase());
+    const price = product.precioVentaActual;
+    const matchesMinPrice = minPrice === '' || price >= parseFloat(minPrice);
+    const matchesMaxPrice = maxPrice === '' || price <= parseFloat(maxPrice);
     
     return matchesName && matchesMinPrice && matchesMaxPrice;
   });
+
+  if (loading) {
+    return <div className="loading">Cargando productos...</div>;
+  }
+
+  if (error) {
+    return <div className="error">Error al cargar productos: {error}</div>;
+  }
 
   return (
     <div className="product-catalog">
@@ -65,7 +99,6 @@ const ProductCatalog = () => {
           />
           <br/>
           <br/>
-          <span className="price-separator"></span>
           <input
             type="number"
             placeholder="Precio máximo"
@@ -75,25 +108,39 @@ const ProductCatalog = () => {
           />
         </div>
       </div>
-      <a href="/user/main_page.html"  rel="noopener noreferrer">
-    <img src={logo} alt="Inicio" className="logo" />
-    </a>
+      <a href="/user/main_page.html" rel="noopener noreferrer">
+        <img src={logo} alt="Inicio" className="logo" />
+      </a>
       <div className="products-container">
-        {filteredProducts.map((product) => (
-          <Link 
-            to={`/producto/${product.id}`} 
-            key={product.id} 
-            className="product-card-link"
-          >
-            <div className="product-card">
-              {product.icon && (
-                <img src={product.icon} alt={product.name} className="product-image" />
-              )}
-              <h3 className="product-name">{product.name}</h3>
-              <p className="product-price">${product.price.toLocaleString('es-ES', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
-            </div>
-          </Link>
-        ))}
+        {filteredProducts.length > 0 ? (
+          filteredProducts.map((product) => (
+            <Link 
+              to={`/producto/${product.id}`} 
+              key={product.id} 
+              className="product-card-link"
+            >
+              <div className="product-card">
+                <img
+                  src={product.imageUrl}
+                  alt={product.nombre}
+                  className="product-image"
+                  onError={(e) => {
+                    e.target.src = getDefaultImage(product.idCategoria);
+                  }}
+                />
+                <h3 className="product-name">{product.nombre}</h3>
+                <p className="product-price">
+                  ${product.precioVentaActual.toLocaleString('es-ES', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                  })}
+                </p>
+              </div>
+            </Link>
+          ))
+        ) : (
+          <div className="no-products">No se encontraron productos que coincidan con los filtros</div>
+        )}
       </div>
     </div>
   );
