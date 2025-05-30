@@ -19,6 +19,8 @@ import {
 export default function PaymentPage() {
   const navigate = useNavigate();
   document.title = 'Pago';
+  let tipoTarjeta=3;
+
   const { cartItems, clearCart } = useCart();
   const [metodoPago, setMetodoPago] = useState("TARJETA_CREDITO");
   const [loading, setLoading] = useState(false);
@@ -57,6 +59,7 @@ export default function PaymentPage() {
     const tipoPago = seleccionado === "Tarjeta de crédito" ? "TARJETA_CREDITO" : "TARJETA_DEBITO";
     setMetodoPago(tipoPago);
     if (tipoPago === "TARJETA_DEBITO") {
+      tipoTarjeta=2;
       window.location.href = "https://ui.pse.com.co/ui/";
     }
   };
@@ -93,17 +96,16 @@ export default function PaymentPage() {
 
     try {
       const pagoPayload = {
-        descripcion: `Pago con ${metodoPago}`,
-        estado: 1,
-        tipo: metodoPago,
-        nombreTitular: formData.nombre || "Anónimo",
-        numeroTarjeta: formData.numeroTarjeta,
-        fechaExpiracion: formData.fechaExpiracion,
-        monto: calculateTotal()
+        correoCliente: formData.email,
+        estado:1,
+        usernameCliente:formData.nombre,
+        valorDscto:0,
+        valorIva:calculateIVA(),
+        valorVenta:calculateTotal()
       };
 
       const pagoResp = await axios.post(
-        'http://localhost:8181/metodoPago/saveMetodoPago',
+        'http://localhost:8181/venta/saveVenta?tipoPago='+tipoTarjeta+'&numero='+formData.numeroTarjeta,
         pagoPayload
       );
 
