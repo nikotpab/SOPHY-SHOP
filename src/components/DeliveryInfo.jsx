@@ -98,7 +98,7 @@ export default function PaymentPage() {
       const pagoPayload = {
         correoCliente: formData.email,
         estado:1,
-        usernameCliente:formData.nombre,
+        usernameCliente:1,
         valorDscto:0,
         valorIva:calculateIVA(),
         valorVenta:calculateTotal()
