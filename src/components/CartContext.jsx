@@ -12,14 +12,8 @@ export const CartProvider = ({ children }) => {
       setTimeout(() => setNotification(''), 3000);
       return false;
     }
-    
-    if (cartItems.some(item => item.id === product.id)) {
-      setNotification('Este producto ya está en el carrito');
-      setTimeout(() => setNotification(''), 3000);
-      return false;
-    }
+   
 
-    // Asegurar que el precio sea un número
     const productWithPrice = {
       ...product,
       price: typeof product.price === 'string' ? 
@@ -50,8 +44,8 @@ export const CartProvider = ({ children }) => {
       cartItems, 
       addToCart, 
       removeFromCart, 
-      clearCart, // Función añadida
-      updateQuantity, // Función útil para modificar cantidades
+      clearCart, 
+      updateQuantity, 
       notification,
       setNotification,
       setCartItems

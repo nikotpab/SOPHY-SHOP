@@ -5,13 +5,11 @@ import logo from '../images/logo192.png';
 import { useProducts } from './ProductContext';
 
 const getDefaultImage = (idCategoria) => {
-
   const categoryImages = {
     1: 'https://via.placeholder.com/200x200?text=Categoría+1',
     2: 'https://via.placeholder.com/200x200?text=Categoría+2',
     3: 'https://via.placeholder.com/200x200?text=Categoría+3'
   };
-
   return categoryImages[idCategoria] || 'https://via.placeholder.com/200x200?text=Sin+Imagen';
 };
 

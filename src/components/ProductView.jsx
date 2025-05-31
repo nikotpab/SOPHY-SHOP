@@ -31,7 +31,6 @@ export default function ProductDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Ajusta base URL si tu backend corre en otro puerto
   const API_BASE = 'http://localhost:8181';
 
   useEffect(() => {
@@ -67,7 +66,6 @@ export default function ProductDetail() {
   if (error)   return <div className="error">{error}</div>;
   if (!product) return <div className="error">Producto no encontrado.</div>;
 
-  // Construye URL de imagen
   const imageUrl = product.fotoProducto
     ? (product.fotoProducto.startsWith('http')
         ? product.fotoProducto

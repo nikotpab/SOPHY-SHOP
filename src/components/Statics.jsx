@@ -33,7 +33,6 @@ export default function DashboardVentas() {
           throw new Error('Error al obtener los datos de ventas');
         }
         const data = await response.json();
-        console.log('Datos recibidos:', data); // Para debug
         setVentasData(data);
         setLoading(false);
       } catch (err) {
@@ -45,9 +44,7 @@ export default function DashboardVentas() {
     fetchVentasData();
   }, []);
 
-  // Procesar datos para estadísticas
   const processStats = (data) => {
-    // Como no tienes fecha_venta, mostraremos estadísticas totales
     const totalVentas = data.reduce((sum, v) => sum + (v.cant_comp || v.cantComp || 0), 0);
     
     const ingresosTotal = data.reduce((sum, v) => {
@@ -56,10 +53,8 @@ export default function DashboardVentas() {
       return sum + (cantidad * valorUnit);
     }, 0);
 
-    // Pedidos únicos (ventas únicas por id_venta)
     const pedidosUnicos = [...new Set(data.map(v => v.id_venta || v.idVenta))].length;
 
-    // Clientes únicos
     const clientesUnicos = [...new Set(data.map(v => v.cliente_id || v.clienteId))].length;
 
     return {
@@ -67,18 +62,16 @@ export default function DashboardVentas() {
       ingresosTotal,
       pedidosUnicos,
       clientesUnicos,
-      ventasRecientes: data.slice(-10) // Últimos 10 registros
+      ventasRecientes: data.slice(-10)
     };
   };
 
-  // Generar datos simulados para la gráfica de la semana
   const generateChartData = (data) => {
     const now = new Date();
     const chartData = Array.from({ length: 7 }).map((_, i) => {
       const date = new Date(now.getTime() - (6 - i) * 24 * 60 * 60 * 1000);
       
-      // Simulamos distribución de ventas a lo largo de la semana
-      const factor = Math.random() * 0.5 + 0.5; // Factor entre 0.5 y 1
+      const factor = Math.random() * 0.5 + 0.5;
       const ventasSimuladas = Math.floor(data.length * factor / 7);
       const ingresosSimulados = data.slice(0, ventasSimuladas).reduce((sum, v) => {
         const cantidad = v.cant_comp || v.cantComp || 0;
@@ -144,7 +137,6 @@ export default function DashboardVentas() {
         </button>
       </div>
 
-      {/* Estadísticas principales */}
       <div className="stats-grid">
         <div className="stat-card">
           <div className="stat-icon sales-icon">
@@ -191,7 +183,6 @@ export default function DashboardVentas() {
         </div>
       </div>
 
-      {/* Gráfica de líneas de ventas */}
       <div className="chart-container">
         <div className="chart-header">
           <h2>Ventas Última Semana (Simulado)</h2>
@@ -251,7 +242,6 @@ export default function DashboardVentas() {
         </ResponsiveContainer>
       </div>
 
-      {/* Tabla de compras */}
       <div className="purchases-table-container">
         <h2>Registros de Ventas</h2>
         <div className="table-wrapper">
