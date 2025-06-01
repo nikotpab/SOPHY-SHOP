@@ -5,7 +5,6 @@ import '../css/Dashboard_products.css';
 const ProductAdmin = () => {
   document.title = "Administración de productos";
 
-
   const [showForm, setShowForm] = useState(false);
   const [products, setProducts] = useState([]);
   const [formData, setFormData] = useState({
@@ -20,7 +19,7 @@ const ProductAdmin = () => {
     tieneIva: false,
     stockMaximo: 0,
     fotoProducto: '',
-    estado: 1 // 1 = Activo, 0 = Inactivo
+    estado: 1
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -28,7 +27,6 @@ const ProductAdmin = () => {
 
   const API_URL = 'http://localhost:8181/producto';
 
-  // Cargar productos al montar el componente
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -46,7 +44,6 @@ const ProductAdmin = () => {
     fetchProducts();
   }, []);
 
-  // Manejar cambios en los campos del formulario
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     
@@ -61,7 +58,6 @@ const ProductAdmin = () => {
     }));
   };
 
-  // Validar el formulario antes de enviar
   const validateForm = () => {
     if (!formData.nombre.trim()) {
       return "El nombre del producto es obligatorio";
@@ -75,7 +71,6 @@ const ProductAdmin = () => {
     return null;
   };
 
-  // Manejar el envío del formulario
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -115,7 +110,6 @@ const ProductAdmin = () => {
     }
   };
 
-  // Resetear el formulario a valores por defecto
   const resetForm = () => {
     setFormData({
       idCategoria: 1,
@@ -133,7 +127,6 @@ const ProductAdmin = () => {
     });
   };
 
-  // Manejar eliminación de producto
   const handleDelete = async (id) => {
     if (!window.confirm("¿Está seguro de eliminar este producto?")) return;
     
@@ -151,7 +144,6 @@ const ProductAdmin = () => {
     }
   };
 
-  // Mostrar estado de carga
   if (loading) {
     return (
       <div className="loading-container">
@@ -161,7 +153,6 @@ const ProductAdmin = () => {
     );
   }
 
-  // Mostrar mensaje de error
   if (error) {
     return (
       <div className="error-container">

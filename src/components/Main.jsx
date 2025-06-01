@@ -160,16 +160,6 @@ function Component() {
                 value={registerData.confirmPassword}
                 onChange={e => setRegisterData({...registerData, confirmPassword: e.target.value})}
               />
-              {/* Campo oculto o editable según tu necesidad */}
-              {/* Si deseas un selector visible para cambiar el tipo de usuario */}
-              {/* <select 
-                className='form-select mb-3'
-                value={registerData.id_tipo_usuario}
-                onChange={e => setRegisterData({...registerData, id_tipo_usuario: parseInt(e.target.value)})}
-              >
-                <option value={1}>Administrador</option>
-                <option value={2}>Usuario</option>
-              </select> */}
             </MDBModalBody>
             <MDBModalFooter>
               <MDBBtn style={{ backgroundColor: '#969494', color: 'white' }} onClick={() => setShowModal(false)}>

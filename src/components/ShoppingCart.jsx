@@ -22,7 +22,6 @@ const ShoppingCart = () => {
             };
           })
         );
-        // Actualizar el carrito con precios nuevos solo si cambian
         if (
           JSON.stringify(updatedItems.map(i => i.price)) !==
           JSON.stringify(cartItems.map(i => i.price))
@@ -55,8 +54,6 @@ const ShoppingCart = () => {
       setTimeout(() => setNotification(''), 3000);
       return;
     }
-    
-    // Navegar al componente de pago
     navigate('/pago');
   };
 

@@ -8,24 +8,20 @@ const Dashboard = () => {
   const navigate = useNavigate();
   document.title = 'Panel de administración';
 
-  // Estados para los datos
   const [usuariosData, setUsuariosData] = useState([]);
   const [ventasData, setVentasData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch de datos
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Obtener usuarios
         const usuariosResponse = await fetch('http://localhost:8181/usuario/getAll');
         if (!usuariosResponse.ok) {
           throw new Error('Error al obtener usuarios');
         }
         const usuarios = await usuariosResponse.json();
 
-        // Obtener ventas
         const ventasResponse = await fetch('http://localhost:8181/detalleVenta/getAll');
         if (!ventasResponse.ok) {
           throw new Error('Error al obtener ventas');
@@ -44,7 +40,6 @@ const Dashboard = () => {
     fetchData();
   }, []);
 
-  // Procesar estadísticas de usuarios
   const processUserStats = (usuarios) => {
     const usuariosActivos = usuarios.filter(u => u.estado === 0).length;
     const usuariosBloqueados = usuarios.filter(u => u.estado === 1).length;
@@ -57,7 +52,6 @@ const Dashboard = () => {
     };
   };
 
-  // Procesar estadísticas de ventas
   const processVentasStats = (ventas) => {
     const totalVentas = ventas.reduce((sum, v) => {
       const cantidad = v.cant_comp || v.cantComp || 0;
@@ -92,7 +86,6 @@ const Dashboard = () => {
     return salesData;
   };
 
-  // Generar datos para gráfica de usuarios por estado
   const generateUserData = (usuarios) => {
     const userStats = processUserStats(usuarios);
     return [
@@ -102,7 +95,6 @@ const Dashboard = () => {
     ];
   };
 
-  // Calcular estadísticas
   const userStats = usuariosData.length > 0 ? processUserStats(usuariosData) : {
     usuariosActivos: 0,
     usuariosBloqueados: 0,
@@ -128,7 +120,6 @@ const Dashboard = () => {
     ["Bloqueados", 0]
   ];
 
-  // Calcular tasa de conversión simulada
   const tasaConversion = userStats.totalUsuarios > 0 
     ? ((ventasStats.pedidosUnicos / userStats.totalUsuarios) * 100).toFixed(1)
     : 0;
@@ -174,6 +165,19 @@ const Dashboard = () => {
                 <span className="icon">💰</span> Ventas
               </Link>
             </li>
+
+            <li>
+              <Link to="">
+                <span className="icon">💻</span> Auditoria
+              </Link>
+            </li>
+
+
+            <li>
+              <Link to="">
+                <span className="icon">🎚️</span> Parámetro
+              </Link>
+            </li>
           </ul>
         </nav>
       </aside>
@@ -200,7 +204,7 @@ const Dashboard = () => {
           </div>
         </div>
         
-        <button className="btn-logout" onClick={() => navigate('/')}>
+        <button className="btn-logout" onClick={() => navigate('/')}> 
           <span>Cerrar sesión</span>
         </button>
         
@@ -245,7 +249,6 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Tabla de resumen */}
         <div className="summary-table" style={{ marginTop: '2rem' }}>
           <h3>Resumen General</h3>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
