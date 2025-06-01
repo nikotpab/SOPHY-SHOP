@@ -8,6 +8,10 @@ const TablaUsuarios = () => {
 
   useEffect(() => {
     document.title = "Administración de usuarios";
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = () => {
     fetch("http://localhost:8181/usuario/getAll")
       .then((response) => {
         if (!response.ok) {
@@ -17,7 +21,7 @@ const TablaUsuarios = () => {
       })
       .then((data) => setUsers(data))
       .catch((error) => console.error(error));
-  }, []);
+  };
 
   const handleRegresar = () => {
     navigate(-1);
@@ -34,11 +38,52 @@ const TablaUsuarios = () => {
         if (!response.ok) {
           throw new Error("Error al eliminar el usuario");
         }
-
         setUsers((prevUsers) => prevUsers.filter((user) => user.id !== id));
       })
       .catch((error) => console.error(error));
   };
+
+const handleToggleStatus = async (id, currentStatus) => {
+  const newStatus = currentStatus === 0 ? 1 : 0;
+  const action = newStatus === 1 ? "bloquear" : "desbloquear";
+  const newIntentos = newStatus === 1 ? 3 : 0; // Nuevo valor para intentos
+
+  if (!window.confirm(`¿Estás seguro de ${action} este usuario?`)) return;
+
+  try {
+    const response = await fetch(
+      `http://localhost:8181/usuario/updateEstado/${id}?estado=${newStatus}`,
+      { 
+        method: "PUT",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          intentos: newIntentos // Enviamos los nuevos intentos
+        })
+      }
+    );
+    
+    const data = await response.json();
+
+    if (!response.ok) throw new Error(data.error || "Error al cambiar estado");
+
+    setUsers(users.map(user => 
+      user.id === id ? { 
+        ...user, 
+        estado: newStatus,
+        intentos: newIntentos 
+      } : user
+    ));
+
+    alert(`Usuario ${action}do correctamente. ${
+      newStatus === 1 ? "Intentos establecidos en 3." : "Intentos reiniciados a 0."
+    }`);
+
+  } catch (error) {
+    alert(`Error: ${error.message}`);
+  }
+};
 
   return (
     <div className="tabla-container">
@@ -64,9 +109,18 @@ const TablaUsuarios = () => {
                   </span>
                 </td>
                 <td>{new Date(user.fchaUltmaClave).toLocaleDateString()}</td>
-                <td>
-                  <button className="btn-eliminar" onClick={() => handleDelete(user.id)}>
-                    🗑️ Eliminar
+                <td className="acciones">
+                  <button 
+                    className={`btn-status ${user.estado === 0 ? "btn-bloquear" : "btn-desbloquear"}`}
+                    onClick={() => handleToggleStatus(user.id, user.estado)}
+                  >
+                    {user.estado === 0 ? "Bloquear" : "Desbloquear"}
+                  </button>
+                  <button 
+                    className="btn-eliminar" 
+                    onClick={() => handleDelete(user.id)}
+                  >
+                    Eliminar
                   </button>
                 </td>
               </tr>

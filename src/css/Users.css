@@ -1,85 +1,132 @@
-.tabla-container {
-    padding: 1rem;
-    font-family: sans-serif;
-  }
-  
+.users-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
 
-  
-  .tabla-titulo {
-    font-size: 1.25rem;
-    font-weight: bold;
-    margin-bottom: 1rem;
+.users-header {
+  margin-bottom: 30px;
+}
+
+.users-title {
+  font-size: 24px;
+  color: #2c3e50;
+  margin-bottom: 10px;
+}
+
+.users-description {
+  color: #7f8c8d;
+  font-size: 16px;
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.users-table th,
+.users-table td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid #ecf0f1;
+}
+
+.users-table th {
+  background-color: #2c3e50;
+  color: white;
+  font-weight: 500;
+}
+
+.users-table tr:hover {
+  background-color: #f5f6fa;
+}
+
+.user-status {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.status-active {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-blocked {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.user-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+.btn-block {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.btn-block:hover {
+  background-color: #c0392b;
+}
+
+.btn-unblock {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.btn-unblock:hover {
+  background-color: #27ae60;
+}
+
+.btn-delete {
+  background-color: #95a5a6;
+  color: white;
+}
+
+.btn-delete:hover {
+  background-color: #7f8c8d;
+}
+
+@media (max-width: 768px) {
+  .users-container {
+    padding: 10px;
   }
-  
-  .tabla-scroll {
+
+  .users-table {
+    display: block;
     overflow-x: auto;
   }
-  
-  .tabla {
+
+  .users-table th,
+  .users-table td {
+    padding: 10px;
+  }
+
+  .user-actions {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .btn {
     width: 100%;
-    border-collapse: collapse;
-    background-color: white;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
-    border-radius: 12px;
-    overflow: hidden;
+    text-align: center;
   }
-  
-  .btn-regresar {
-    position: absolute;
-    top: 650px;
-    right: 30px;
-    background-color: #e5e7eb; 
-    color: #1f2937; 
-    padding: 0.5rem 1rem;
-    font-size: 0.9rem;
-    font-weight: 600;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    margin-bottom: 1rem;
-    transition: background-color 0.2s ease;
-  }
-  
-  .btn-regresar:hover {
-    background-color: #d1d5db;
-  }
-  
-  .botones-superiores {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-  }
-  
-  .tabla th,
-  .tabla td {
-    padding: 0.75rem 1rem;
-    text-align: left;
-    border-bottom: 1px solid #e2e8f0;
-  }
-  
-  .tabla thead {
-    background-color: #f1f5f9;
-    color: #1e293b;
-  }
-  
-  .tabla tbody tr:hover {
-    background-color: #f9fafb;
-  }
-  
-  .estado {
-    padding: 0.25rem 0.75rem;
-    border-radius: 999px;
-    font-size: 0.875rem;
-    font-weight: 500;
-  }
-  
-  .estado.activo {
-    background-color: #d1fae5;
-    color: #065f46;
-  }
-  
-  .estado.inactivo {
-    background-color: #fee2e2;
-    color: #991b1b;
-  }
+}
   

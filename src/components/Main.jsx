@@ -53,6 +53,8 @@ function Component() {
   };
   
 
+   
+
   const handleRegister = async () => {
     if (registerData.password !== registerData.confirmPassword) {
       setError('Las contraseñas no coinciden');
@@ -120,6 +122,19 @@ function Component() {
             onClick={() => setShowModal(true)}
           >
             Registrarse
+          </button>
+        </p>
+      </div>
+
+       <div className="text-center">
+        <p>
+          ¿Olvidó su contraseña?{' '}
+          <button 
+            className="btn btn-link p-0"
+            style={{ textDecoration: 'underline', background: 'none', border: 'none', color:'#343a40'}}
+            onClick={() => navigate('/cuenta')}
+          >
+            Recuperar contraseña
           </button>
         </p>
       </div>
