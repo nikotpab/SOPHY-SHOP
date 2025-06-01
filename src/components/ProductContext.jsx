@@ -1,38 +1,43 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useContext } from 'react';
 
 const ProductContext = createContext();
 
+export const useProduct = () => {
+  return useContext(ProductContext);
+};
+
 export const ProductProvider = ({ children }) => {
-  const [products, setProducts] = useState(() => {
-    const savedProducts = localStorage.getItem('products');
-    return savedProducts ? JSON.parse(savedProducts) : [
-      {
-        icon: 'album1.webp',
-        id: 1,
-        name: 'Only They Could Have Made This Album LP - Importado',
-        price: 152320
-      },
-    ];
-  });
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    localStorage.setItem('products', JSON.stringify(products));
-  }, [products]);
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch('http://localhost:8181/producto/getAll');
+      if (!response.ok) {
+        throw new Error('Error al obtener productos');
+      }
+      const data = await response.json();
+      setProducts(data);
+      setLoading(false);
+    } catch (err) {
+      setError(err.message);
+      setLoading(false);
+    }
+  };
 
-  const addProduct = (newProduct) => {
-    setProducts(prev => [...prev, {
-      ...newProduct,
-      id: Date.now(),
-      price: parseFloat(newProduct.price),
-      icon: newProduct.image
-    }]);
+  const value = {
+    products,
+    loading,
+    error,
+    fetchProducts
   };
 
   return (
-    <ProductContext.Provider value={{ products, addProduct }}>
+    <ProductContext.Provider value={value}>
       {children}
     </ProductContext.Provider>
   );
 };
 
-export const useProducts = () => useContext(ProductContext);
+export default ProductContext;

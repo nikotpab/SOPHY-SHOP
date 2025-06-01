@@ -8,37 +8,33 @@ const ShoppingCart = () => {
   const { cartItems, setCartItems, removeFromCart, notification, setNotification } = useCart();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchProductPrices = async () => {
-      try {
-        const updatedItems = await Promise.all(
-          cartItems.map(async (item) => {
-            const response = await axios.get(
-              `http://localhost:8181/producto/findRecord/${item.id}`
-            );
-            return {
-              ...item,
-              price: response.data.precioVentaActual
-            };
-          })
-        );
-        if (
-          JSON.stringify(updatedItems.map(i => i.price)) !==
-          JSON.stringify(cartItems.map(i => i.price))
-        ) {
-          setCartItems(updatedItems);
-        }
-      } catch (error) {
-        console.error('Error fetching product prices:', error);
-        setNotification('Error al obtener precios actualizados');
-        setTimeout(() => setNotification(''), 3000);
-      }
-    };
-
-    if (cartItems.length > 0) {
-      fetchProductPrices();
+ useEffect(() => {
+  const fetchProductPrices = async () => {
+    try {
+      const updatedItems = await Promise.all(
+        cartItems.map(async (item) => {
+          const response = await axios.get(
+            `http://localhost:8181/producto/findRecord/${item.id}`
+          );
+          return {
+            ...item,
+            price: response.data.precioVentaActual,
+            name: response.data.nombre // ⬅️ Añade el nombre aquí
+          };
+        })
+      );
+      setCartItems(updatedItems); // ya no compares, actualízalo directamente
+    } catch (error) {
+      console.error('Error fetching product prices:', error);
+      setNotification('Error al obtener precios actualizados');
+      setTimeout(() => setNotification(''), 3000);
     }
-  }, [cartItems, setCartItems, setNotification]);
+  };
+
+  if (cartItems.length > 0) {
+    fetchProductPrices();
+  }
+}, [cartItems, setCartItems, setNotification]);
 
   const calculateTotal = () => {
     const total = cartItems.reduce(
@@ -58,41 +54,44 @@ const ShoppingCart = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="shopping-cart-container">
       {notification && (
-        <div className="fixed top-4 right-4 p-4 bg-yellow-100 text-yellow-800 rounded-lg shadow-lg z-50">
+        <div className="notification">
           {notification}
         </div>
       )}
 
-      <div className="flex justify-between items-center mb-8">
-        <button className="button-23" onClick={() => navigate(-1)}>
-          Regresar
+      {/* Header con botón de regreso y título */}
+      <div className="shopping-cart-header">
+        <button className="button-back" onClick={() => navigate(-1)}>
+          ← Regresar
         </button>
+        <h2 className="shopping-cart-title">
+          Tu Carrito ({cartItems.length}/3)
+        </h2>
       </div>
 
-      <h2 className="carrito_msj">
-        Tu Carrito ({cartItems.length}/3)
-      </h2>
-
       {cartItems.length === 0 ? (
-        <p className="vacio">El carrito está vacío</p>
+        <p className="empty-message">El carrito está vacío</p>
       ) : (
         <>
-          <div className="space-y-4 mb-6">
+          {/* Lista de ítems */}
+          <div className="items-list">
             {cartItems.map(item => (
               <div key={item.id} className="item-carrito">
-                <div>
-                  <h3>{item.name}</h3>
-                  <p>{item.quantity} x {formatPrice(item.price)}</p>
+                <div className="item-info">
+                  <h3 className="item-name">{item.name}</h3>
+                  <p className="item-qty-price">
+                    {item.quantity} × {formatPrice(item.price)}
+                  </p>
                 </div>
-                <div>
-                  <p className="total-item">
+                <div className="item-actions">
+                  <p className="item-subtotal">
                     {formatPrice(item.quantity * item.price)}
                   </p>
                   <button
                     onClick={() => removeFromCart(item.id)}
-                    className="eliminar-item"
+                    className="button-delete"
                   >
                     Eliminar
                   </button>
@@ -101,14 +100,16 @@ const ShoppingCart = () => {
             ))}
           </div>
 
-          <div className="total-general">
-            <span>Total General:</span>
-            <span>{formatPrice(calculateTotal())}</span>
+          {}
+          <div className="total-container">
+            <span className="total-label">Total General:</span>
+            <span className="total-value">{formatPrice(calculateTotal())}</span>
           </div>
 
+          {/* Botón Finalizar Compra */}
           <button
             onClick={handleFinalizePurchase}
-            className="finalizar-compra"
+            className="button-finalize"
             disabled={cartItems.length === 0}
           >
             Finalizar Compra

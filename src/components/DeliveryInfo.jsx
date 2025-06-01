@@ -20,6 +20,7 @@ import {
 export default function PaymentPage() {
   const navigate = useNavigate();
   document.title = 'Pago';
+
   const { cartItems, clearCart } = useCart();
   const [metodoPago, setMetodoPago] = useState("TARJETA_CREDITO");
   const [loading, setLoading] = useState(false);
@@ -41,11 +42,10 @@ export default function PaymentPage() {
     cvv: ''
   });
 
-  // Códigos promocionales válidos (en una app real, esto vendría de una API)
   const codigosValidos = {
-    "DESCUENTO10": 0.1,   // 10% de descuento
-    "VERANO20": 0.2,      // 20% de descuento
-    "CLIENTE5": 0.05      // 5% de descuento
+    "DESCUENTO10": 0.1,
+    "VERANO20": 0.2,
+    "CLIENTE5": 0.05
   };
 
   useEffect(() => {
@@ -64,27 +64,18 @@ export default function PaymentPage() {
   };
 
   const handleMetodoPagoChange = (e) => {
-    const seleccionado = e.target.labels[0].innerText;
-    const tipoPago = seleccionado === "Tarjeta de crédito" ? "TARJETA_CREDITO" : "TARJETA_DEBITO";
-    setMetodoPago(tipoPago);
-    if (tipoPago === "TARJETA_DEBITO") {
-      window.location.href = "https://ui.pse.com.co/ui/";
-    }
+    const label = e.target.labels[0].innerText; 
+    setMetodoPago(label === "Tarjeta de crédito" ? "TARJETA_CREDITO" : "TARJETA_DEBITO");
   };
 
   const calculateSubtotal = () =>
     cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
 
-  const calculateIVA = () =>
-    calculateSubtotal() * 0.19;
+  const calculateIVA = () => calculateSubtotal() * 0.19;
 
-  const calculateDescuento = () => {
-    const subtotal = calculateSubtotal();
-    return subtotal * descuentoAplicado;
-  };
+  const calculateDescuento = () => calculateSubtotal() * descuentoAplicado;
 
-  const calculateTotal = () =>
-    calculateSubtotal() + calculateIVA() - calculateDescuento();
+  const calculateTotal = () => calculateSubtotal() + calculateIVA() - calculateDescuento();
 
   const formatPrice = (price) =>
     new Intl.NumberFormat('es-CO', {
@@ -95,7 +86,6 @@ export default function PaymentPage() {
 
   const aplicarCodigoPromocional = () => {
     const codigo = codigoPromocional.trim().toUpperCase();
-    
     if (codigosValidos[codigo]) {
       setDescuentoAplicado(codigosValidos[codigo]);
       setCodigoValido(true);
@@ -128,34 +118,68 @@ export default function PaymentPage() {
     }
 
     try {
+      // 1. Reducir existencia de productos
+      const detallesExistencia = cartItems.map(item => ({
+        idProducto: item.id,
+        cantComp: item.quantity
+      }));
+
+      await axios.post('http://localhost:8181/detalleVenta/reducirExistencia', detallesExistencia);
+
+      // 2. Registrar la venta principal
+      const ventaPayload = {
+        fechaVenta: new Date().toISOString().split('T')[0], // Fecha actual en formato YYYY-MM-DD
+        usernameCliente: formData.nombre || "Anónimo",
+        correoCliente: formData.email || "sin-correo@example.com",
+        valorVenta: calculateSubtotal(),
+        valorTva: calculateIVA(),
+        valorDacto: calculateDescuento(),
+        estado: 1 // 1 = activo, 0 = cancelado
+      };
+
+      const ventaResp = await axios.post(
+        'http://localhost:8181/venta/saveVenta',
+        ventaPayload,
+        {
+          params: {
+            tipoPago: metodoPago === "TARJETA_CREDITO" ? "Tarjeta" : "PSE",
+            numero: metodoPago === "TARJETA_CREDITO" ? formData.numeroTarjeta : "0000000000000000"
+          }
+        }
+      );
+
+      const idVentaGenerado = ventaResp.data.id;
+
+      // 3. Registrar método de pago (opcional, si necesitas mantener esta funcionalidad)
       const pagoPayload = {
         descripcion: `Pago con ${metodoPago}`,
         estado: 1,
         tipo: metodoPago,
         nombreTitular: formData.nombre || "Anónimo",
-        numeroTarjeta: formData.numeroTarjeta,
-        fechaExpiracion: formData.fechaExpiracion,
+        numeroTarjeta: metodoPago === "TARJETA_CREDITO" ? formData.numeroTarjeta : null,
+        fechaExpiracion: metodoPago === "TARJETA_CREDITO" ? formData.fechaExpiracion : null,
+        cvv: metodoPago === "TARJETA_CREDITO" ? formData.cvv : null,
         monto: calculateTotal(),
         descuentoAplicado: calculateDescuento(),
-        codigoPromocional: codigoValido ? codigoPromocional : null
+        codigoPromocional: codigoValido ? codigoPromocional : null,
+        idVenta: idVentaGenerado // Relacionamos el método de pago con la venta
       };
 
-      const pagoResp = await axios.post(
+      await axios.post(
         'http://localhost:8181/metodoPago/saveMetodoPago',
         pagoPayload
       );
 
-      const idVentaGenerada = pagoResp.data["12.5-id"];
-
+      // 4. Registrar detalles de venta
       const detallePromises = cartItems.map(item => {
         const detallePayload = {
-          idVenta: idVentaGenerada,
+          idVenta: idVentaGenerado,
           idProducto: item.id,
           cantComp: item.quantity,
           valorUnit: item.price,
           valorIva: item.price * item.quantity * 0.19,
           valorDscto: item.price * item.quantity * descuentoAplicado,
-          clienteId: 1,
+          clienteId: 1
         };
         return axios.post(
           'http://localhost:8181/detalleVenta/saveDetalleVenta',
@@ -166,10 +190,12 @@ export default function PaymentPage() {
       await Promise.all(detallePromises);
 
       setSuccess(true);
-      
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.message || 'Error al procesar el pago. Por favor intente nuevamente.');
+      const errorMessage = err.response?.data || 
+                         (err.response?.status === 400 ? 'Stock insuficiente para algunos productos' : 
+                          'Error al procesar el pago. Por favor intente nuevamente.');
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -253,8 +279,7 @@ export default function PaymentPage() {
                 />
 
                 <hr className="my-4"/>
-                
-                {/* Sección de código promocional */}
+
                 <div className="mb-4">
                   {!mostrarInputCodigo ? (
                     <MDBBtn 
@@ -384,7 +409,7 @@ export default function PaymentPage() {
                 <h5 className="mb-0">Resumen de la compra</h5>
               </MDBCardHeader>
               <MDBCardBody>
-                <MDBListGroup flush>
+                <MDBListGroup flush="true">
                   {cartItems.map((item, i) => (
                     <MDBListGroupItem key={i}
                       className="d-flex justify-content-between align-items-center border-0 px-0 pb-0">

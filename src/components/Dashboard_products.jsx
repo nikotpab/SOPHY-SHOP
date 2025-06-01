@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../css/Dashboard_products.css';
+import { useNavigate } from 'react-router-dom';
 
 const ProductAdmin = () => {
   document.title = "Administración de productos";
 
   const [showForm, setShowForm] = useState(false);
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
-    idCategoria: 1,
-    referencia: '',
     nombre: '',
+    referencia: '',
     descripcion: '',
     existencia: 0,
     precioVentaActual: 0,
@@ -19,6 +21,7 @@ const ProductAdmin = () => {
     tieneIva: false,
     stockMaximo: 0,
     fotoProducto: '',
+    idCategoria: 1,
     estado: 1
   });
   const [loading, setLoading] = useState(true);
@@ -26,22 +29,38 @@ const ProductAdmin = () => {
   const [successMessage, setSuccessMessage] = useState(null);
 
   const API_URL = 'http://localhost:8181/producto';
+  const CATEGORIA_URL = 'http://localhost:8181/categoria';
+  const navigate = useNavigate();
+
+  // Función para generar UUID v4
+  const generateUUID = () => {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = (Math.random() * 16) | 0,
+        v = c === 'x' ? r : (r & 0x3) | 0x8;
+      return v.toString(16);
+    });
+  };
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchData = async () => {
       try {
-        const res = await axios.get(`${API_URL}/getAll`);
-        setProducts(Array.isArray(res.data) ? res.data : []);
+        const [productsRes, categoriesRes] = await Promise.all([
+          axios.get(`${API_URL}/getAll`),
+          axios.get(`${CATEGORIA_URL}/getAll`)
+        ]);
+        
+        setProducts(Array.isArray(productsRes.data) ? productsRes.data : []);
+        setCategories(Array.isArray(categoriesRes.data) ? categoriesRes.data : []);
         setError(null);
       } catch (err) {
-        console.error("Error al cargar productos:", err);
-        setError("No se pudieron cargar los productos. Intente nuevamente.");
+        console.error("Error al cargar datos:", err);
+        setError("No se pudieron cargar los datos. Intente nuevamente.");
       } finally {
         setLoading(false);
       }
     };
     
-    fetchProducts();
+    fetchData();
   }, []);
 
   const handleChange = (e) => {
@@ -50,9 +69,9 @@ const ProductAdmin = () => {
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : 
-             (name.endsWith('Actual') || name.endsWith('Anterior') || name === 'costoCompra') ? 
+             (name === 'precioVentaActual' || name === 'precioVentaAnterior' || name === 'costoCompra') ? 
              parseFloat(value) || 0 : 
-             (name === 'existencia' || name === 'stockMaximo' || name === 'idCategoria') ? 
+             (name === 'existencia' || name === 'stockMaximo' || name === 'idCategoria' || name === 'estado') ? 
              parseInt(value, 10) || 0 : 
              value
     }));
@@ -71,6 +90,25 @@ const ProductAdmin = () => {
     return null;
   };
 
+  const handleEdit = (product) => {
+    setFormData({
+      nombre: product.nombre || '',
+      referencia: product.referencia || '', // Mantiene la referencia existente
+      descripcion: product.descripcion || '',
+      existencia: product.existencia || 0,
+      precioVentaActual: product.precioVentaActual ? parseFloat(product.precioVentaActual) : 0,
+      precioVentaAnterior: product.precioVentaAnterior ? parseFloat(product.precioVentaAnterior) : 0,
+      costoCompra: product.costoCompra ? parseFloat(product.costoCompra) : 0,
+      tieneIva: product.tieneIva === 1,
+      stockMaximo: product.stockMaximo || 0,
+      fotoProducto: product.fotoProducto || '',
+      idCategoria: product.idCategoria || 1,
+      estado: product.estado || 1
+    });
+    setEditingId(product.id);
+    setShowForm(true);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -84,22 +122,32 @@ const ProductAdmin = () => {
       setLoading(true);
       
       const payload = {
-        ...formData,
-        tieneIva: formData.tieneIva ? 1 : 0,  
-        idCategoria: parseInt(formData.idCategoria, 10),
-        existencia: parseInt(formData.existencia, 10),
-        precioVentaActual: parseFloat(formData.precioVentaActual),
-        precioVentaAnterior: parseFloat(formData.precioVentaAnterior || 0),
-        costoCompra: parseFloat(formData.costoCompra || 0),
-        stockMaximo: parseInt(formData.stockMaximo, 10),
-        estado: parseInt(formData.estado, 10)
+        nombre: formData.nombre,
+        referencia: formData.referencia,
+        descripcion: formData.descripcion,
+        existencia: formData.existencia,
+        precioVentaActual: formData.precioVentaActual,
+        precioVentaAnterior: formData.precioVentaAnterior,
+        costoCompra: formData.costoCompra,
+        tieneIva: formData.tieneIva ? 1 : 0,
+        stockMaximo: formData.stockMaximo,
+        fotoProducto: formData.fotoProducto,
+        idCategoria: formData.idCategoria,
+        estado: formData.estado
       };
 
-      const res = await axios.post(`${API_URL}/saveProducto`, payload);
+      let res;
+      if (editingId) {
+        payload.id = editingId;
+        res = await axios.post(`${API_URL}/saveProducto`, payload);
+        setProducts(prev => prev.map(p => p.id === editingId ? res.data : p));
+      } else {
+        res = await axios.post(`${API_URL}/saveProducto`, payload);
+        setProducts(prev => [...prev, res.data]);
+      }
       
-      setProducts(prev => [...prev, res.data]);
       setShowForm(false);
-      setSuccessMessage("Producto guardado correctamente");
+      setSuccessMessage(editingId ? "Producto actualizado correctamente" : "Producto guardado correctamente");
       setTimeout(() => setSuccessMessage(null), 3000);
       resetForm();
     } catch (err) {
@@ -112,9 +160,8 @@ const ProductAdmin = () => {
 
   const resetForm = () => {
     setFormData({
-      idCategoria: 1,
-      referencia: '',
       nombre: '',
+      referencia: generateUUID(), // Genera nuevo UUID al resetear
       descripcion: '',
       existencia: 0,
       precioVentaActual: 0,
@@ -123,8 +170,10 @@ const ProductAdmin = () => {
       tieneIva: false,
       stockMaximo: 0,
       fotoProducto: '',
+      idCategoria: 1,
       estado: 1
     });
+    setEditingId(null);
   };
 
   const handleDelete = async (id) => {
@@ -133,7 +182,7 @@ const ProductAdmin = () => {
     try {
       setLoading(true);
       await axios.delete(`${API_URL}/deleteProducto/${id}`);
-      setProducts(prev => prev.filter(p => p.idProducto !== id));
+      setProducts(prev => prev.filter(p => p.id !== id));
       setSuccessMessage("Producto eliminado correctamente");
       setTimeout(() => setSuccessMessage(null), 3000);
     } catch (err) {
@@ -175,18 +224,23 @@ const ProductAdmin = () => {
       )}
 
       <div className="action-bar">
-        <br/>
-        <br/>
-        <br/>
-        <br/>
-        <br/>
-        <br/>
-
         <button 
-          onClick={() => setShowForm(!showForm)} 
+          onClick={() => {
+            resetForm();
+            setShowForm(!showForm);
+          }} 
           className={`btn ${showForm ? 'btn-cancel' : 'btn-primary'}`}
         >
           {showForm ? "Cancelar" : "Nuevo Producto"}
+        </button>
+      </div>
+
+      <div className="action-bar-2">
+        <button 
+          onClick={() => navigate(-1)}
+          className={`btn ${'btn-primary'}`}
+        >
+          Volver
         </button>
       </div>
 
@@ -211,8 +265,10 @@ const ProductAdmin = () => {
                   type="text"
                   name="referencia"
                   value={formData.referencia}
-                  onChange={handleChange}
+                  readOnly
+                  className="read-only-input"
                 />
+            
               </div>
             </div>
 
@@ -306,15 +362,19 @@ const ProductAdmin = () => {
             </div>
 
             <div className="form-group">
-              <label>Categoría ID *</label>
-              <input
-                type="number"
+              <label>Categoría *</label>
+              <select
                 name="idCategoria"
                 value={formData.idCategoria}
                 onChange={handleChange}
-                min="1"
                 required
-              />
+              >
+                {categories.map(category => (
+                  <option key={category.id} value={category.id}>
+                    {category.nombre}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
@@ -346,7 +406,7 @@ const ProductAdmin = () => {
 
           <div className="form-actions">
             <button type="submit" className="btn btn-submit" disabled={loading}>
-              {loading ? "Guardando..." : "Guardar Producto"}
+              {loading ? "Guardando..." : editingId ? "Actualizar Producto" : "Guardar Producto"}
             </button>
           </div>
         </form>
@@ -362,7 +422,7 @@ const ProductAdmin = () => {
         ) : (
           <div className="products-grid">
             {products.map(product => (
-              <div key={product.idProducto} className="product-card">
+              <div key={product.id} className="product-card">
                 <div className="product-image-container">
                   <img
                     src={product.fotoProducto || 'https://via.placeholder.com/150'}
@@ -380,6 +440,9 @@ const ProductAdmin = () => {
                 <div className="product-info">
                   <h3 className="product-name">{product.nombre}</h3>
                   <p className="product-reference">Ref: {product.referencia || 'N/A'}</p>
+                  <p className="product-category">
+                    Categoría: {categories.find(c => c.id === product.idCategoria)?.nombre || 'Desconocida'}
+                  </p>
                   
                   <div className="product-price">
                     <span className="current-price">
@@ -401,7 +464,13 @@ const ProductAdmin = () => {
                   
                   <div className="product-actions">
                     <button 
-                      onClick={() => handleDelete(product.idProducto)}
+                      onClick={() => handleEdit(product)}
+                      className="btn btn-edit"
+                    >
+                      Editar
+                    </button>
+                    <button 
+                      onClick={() => handleDelete(product.id)}
                       className="btn btn-danger"
                     >
                       Eliminar

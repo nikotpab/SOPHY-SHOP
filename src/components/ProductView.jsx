@@ -143,25 +143,10 @@ export default function ProductDetail() {
                 <td>{product.existencia}</td>
               </tr>
               <tr>
-                <th>Precio Actual</th>
-                <td>{formatPrice(product.precioVentaActual)}</td>
-              </tr>
-              <tr>
-                <th>Precio Anterior</th>
-                <td>{formatPrice(product.precioVentaAnterior)}</td>
-              </tr>
-              <tr>
-                <th>Costo Compra</th>
-                <td>{formatPrice(product.costoCompra)}</td>
-              </tr>
-              <tr>
                 <th>¿Tiene IVA?</th>
                 <td>{product.tieneIva === 1 ? 'Sí' : 'No'}</td>
               </tr>
-              <tr>
-                <th>Stock Máximo</th>
-                <td>{product.stockMaximo}</td>
-              </tr>
+
               <tr>
                 <th>Estado</th>
                 <td>{product.estado === 1 ? 'Activo' : 'Inactivo'}</td>

@@ -1,63 +1,61 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useState, useContext } from 'react';
+
+
 const CartContext = createContext();
+
+export const useCart = () => {
+  return useContext(CartContext);
+};
 
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
-  const [notification, setNotification] = useState('');
 
-  const addToCart = (product) => {
-    if (cartItems.length >= 3) {
-      setNotification('¡Límite máximo de 3 productos en el carrito!');
-      setTimeout(() => setNotification(''), 3000);
-      return false;
-    }
-   
-
-    const productWithPrice = {
-      ...product,
-      price: typeof product.price === 'string' ? 
-             parseFloat(product.price) : 
-             product.price
-    };
-
-    setCartItems([...cartItems, { ...productWithPrice, quantity: 1 }]);
-    return true;
+  const addToCart = (item) => {
+    setCartItems(prevItems => {
+      const existingItem = prevItems.find(i => i.id === item.id);
+      if (existingItem) {
+        return prevItems.map(i =>
+          i.id === item.id
+            ? { ...i, quantity: i.quantity + 1 }
+            : i
+        );
+      }
+      return [...prevItems, { ...item, quantity: 1 }];
+    });
   };
 
-  const removeFromCart = (productId) => {
-    setCartItems(cartItems.filter(item => item.id !== productId));
+  const removeFromCart = (itemId) => {
+    setCartItems(prevItems => prevItems.filter(item => item.id !== itemId));
+  };
+
+  const updateQuantity = (itemId, newQuantity) => {
+    if (newQuantity < 1) return;
+    setCartItems(prevItems =>
+      prevItems.map(item =>
+        item.id === itemId
+          ? { ...item, quantity: newQuantity }
+          : item
+      )
+    );
   };
 
   const clearCart = () => {
     setCartItems([]);
   };
 
-  const updateQuantity = (productId, newQuantity) => {
-    setCartItems(cartItems.map(item => 
-      item.id === productId ? { ...item, quantity: newQuantity } : item
-    ));
+  const value = {
+    cartItems,
+    addToCart,
+    removeFromCart,
+    updateQuantity,
+    clearCart
   };
 
   return (
-    <CartContext.Provider value={{ 
-      cartItems, 
-      addToCart, 
-      removeFromCart, 
-      clearCart, 
-      updateQuantity, 
-      notification,
-      setNotification,
-      setCartItems
-    }}>
+    <CartContext.Provider value={value}>
       {children}
     </CartContext.Provider>
   );
 };
 
-export const useCart = () => {
-  const context = useContext(CartContext);
-  if (!context) {
-    throw new Error('useCart debe usarse dentro de un CartProvider');
-  }
-  return context;
-};
+export default CartContext;
