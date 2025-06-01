@@ -9,6 +9,8 @@ import {
 function Component() {
 
   const [showModal, setShowModal] = useState(false);
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  const [forgotData, setForgotData] = useState({ username: '', email: '' });
   const [loginData, setLoginData] = useState({ email: '', password: '' });
   const [registerData, setRegisterData] = useState({ 
     username: '', 
@@ -36,6 +38,7 @@ function Component() {
       const data = await response.text();
   
       if (response.ok) {
+        localStorage.setItem('userEmail', loginData.email);
         if (
           loginData.email === 'rojaswilson@unbosque.edu.co' &&
           loginData.password === 'Admin123'
@@ -51,7 +54,32 @@ function Component() {
       setError('Error de conexión con el servidor');
     }
   };
-  
+
+  const handleForgotPassword = async () => {
+    try {
+      console.log(`Salida del sistema: ${forgotData.username} ${forgotData.email}`);
+      const url = `${API_URL}/mailPassword?username=${encodeURIComponent(forgotData.username)}&mail=${encodeURIComponent(forgotData.email)}`;
+
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      const responseText = await response.text();
+
+      if (response.ok) {
+        setShowForgotModal(false);
+        setError('');
+        alert('Se ha enviado un correo para recuperar su contraseña.');
+      } else {
+        setError(responseText);
+      }
+    } catch (err) {
+      setError('Error al intentar enviar el correo.');
+    }
+  };
+
+
 
   const handleRegister = async () => {
     if (registerData.password !== registerData.confirmPassword) {
@@ -122,6 +150,16 @@ function Component() {
             Registrarse
           </button>
         </p>
+        <p>
+          ¿Olvidó su contraseña?{' '}
+          <button
+              className="btn btn-link p-0"
+              style={{ textDecoration: 'underline', background: 'none', border: 'none', color:'#343a40'}}
+              onClick={() => setShowForgotModal(true)}
+          >
+            Recuperar acceso
+          </button>
+        </p>
       </div>
 
       <MDBModal open={showModal} setOpen={setShowModal} tabIndex='-1'>
@@ -160,16 +198,6 @@ function Component() {
                 value={registerData.confirmPassword}
                 onChange={e => setRegisterData({...registerData, confirmPassword: e.target.value})}
               />
-              {/* Campo oculto o editable según tu necesidad */}
-              {/* Si deseas un selector visible para cambiar el tipo de usuario */}
-              {/* <select 
-                className='form-select mb-3'
-                value={registerData.id_tipo_usuario}
-                onChange={e => setRegisterData({...registerData, id_tipo_usuario: parseInt(e.target.value)})}
-              >
-                <option value={1}>Administrador</option>
-                <option value={2}>Usuario</option>
-              </select> */}
             </MDBModalBody>
             <MDBModalFooter>
               <MDBBtn style={{ backgroundColor: '#969494', color: 'white' }} onClick={() => setShowModal(false)}>
@@ -182,6 +210,41 @@ function Component() {
           </MDBModalContent>
         </MDBModalDialog>
       </MDBModal>
+      <MDBModal open={showForgotModal} setOpen={setShowForgotModal} tabIndex='-1'>
+        <MDBModalDialog>
+          <MDBModalContent>
+            <MDBModalHeader>
+              <MDBModalTitle>Recuperar Contraseña</MDBModalTitle>
+              <MDBBtn className='btn-close' color='none' onClick={() => setShowForgotModal(false)}></MDBBtn>
+            </MDBModalHeader>
+            <MDBModalBody>
+              <MDBInput
+                  className='mb-3'
+                  label='Nombre de usuario'
+                  type='text'
+                  value={forgotData.username}
+                  onChange={e => setForgotData({...forgotData, username: e.target.value})}
+              />
+              <MDBInput
+                  className='mb-3'
+                  label='Correo electrónico'
+                  type='email'
+                  value={forgotData.email}
+                  onChange={e => setForgotData({...forgotData, email: e.target.value})}
+              />
+            </MDBModalBody>
+            <MDBModalFooter>
+              <MDBBtn style={{ backgroundColor: '#969494', color: 'white' }} onClick={() => setShowForgotModal(false)}>
+                Cerrar
+              </MDBBtn>
+              <MDBBtn color='dark' onClick={handleForgotPassword}>
+                Enviar solicitud
+              </MDBBtn>
+            </MDBModalFooter>
+          </MDBModalContent>
+        </MDBModalDialog>
+      </MDBModal>
+
     </MDBContainer>
   );
 }

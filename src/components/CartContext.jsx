@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState } from 'react';
-
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
@@ -12,14 +11,16 @@ export const CartProvider = ({ children }) => {
       setTimeout(() => setNotification(''), 3000);
       return false;
     }
-    
-    if (cartItems.some(item => item.id === product.id)) {
-      setNotification('Este producto ya está en el carrito');
-      setTimeout(() => setNotification(''), 3000);
-      return false;
-    }
+   
 
-    setCartItems([...cartItems, { ...product, quantity: 1 }]);
+    const productWithPrice = {
+      ...product,
+      price: typeof product.price === 'string' ? 
+             parseFloat(product.price) : 
+             product.price
+    };
+
+    setCartItems([...cartItems, { ...productWithPrice, quantity: 1 }]);
     return true;
   };
 
@@ -27,17 +28,36 @@ export const CartProvider = ({ children }) => {
     setCartItems(cartItems.filter(item => item.id !== productId));
   };
 
+  const clearCart = () => {
+    setCartItems([]);
+  };
+
+  const updateQuantity = (productId, newQuantity) => {
+    setCartItems(cartItems.map(item => 
+      item.id === productId ? { ...item, quantity: newQuantity } : item
+    ));
+  };
+
   return (
     <CartContext.Provider value={{ 
       cartItems, 
       addToCart, 
       removeFromCart, 
+      clearCart, 
+      updateQuantity, 
       notification,
-      setNotification
+      setNotification,
+      setCartItems
     }}>
       {children}
     </CartContext.Provider>
   );
 };
 
-export const useCart = () => useContext(CartContext);
+export const useCart = () => {
+  const context = useContext(CartContext);
+  if (!context) {
+    throw new Error('useCart debe usarse dentro de un CartProvider');
+  }
+  return context;
+};
