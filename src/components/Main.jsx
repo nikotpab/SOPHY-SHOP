@@ -57,6 +57,7 @@ function Component() {
 
   const handleForgotPassword = async () => {
     try {
+      console.log(`Salida del sistema: ${forgotData.username} ${forgotData.email}`);
       const url = `${API_URL}/mailPassword?username=${encodeURIComponent(forgotData.username)}&mail=${encodeURIComponent(forgotData.email)}`;
 
       const response = await fetch(url, {
