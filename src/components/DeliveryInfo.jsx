@@ -13,7 +13,8 @@ import {
   MDBRadio,
   MDBBtn,
   MDBListGroup,
-  MDBListGroupItem
+  MDBListGroupItem,
+  MDBBadge
 } from "mdb-react-ui-kit";
 
 export default function PaymentPage() {
@@ -24,6 +25,10 @@ export default function PaymentPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [codigoPromocional, setCodigoPromocional] = useState("");
+  const [descuentoAplicado, setDescuentoAplicado] = useState(0);
+  const [codigoValido, setCodigoValido] = useState(false);
+  const [mostrarInputCodigo, setMostrarInputCodigo] = useState(false);
 
   const [formData, setFormData] = useState({
     nombre: '',
@@ -36,7 +41,13 @@ export default function PaymentPage() {
     cvv: ''
   });
 
-  // Efecto para redireccionar después de pago exitoso
+  // Códigos promocionales válidos (en una app real, esto vendría de una API)
+  const codigosValidos = {
+    "DESCUENTO10": 0.1,   // 10% de descuento
+    "VERANO20": 0.2,      // 20% de descuento
+    "CLIENTE5": 0.05      // 5% de descuento
+  };
+
   useEffect(() => {
     if (success) {
       const timer = setTimeout(() => {
@@ -67,8 +78,13 @@ export default function PaymentPage() {
   const calculateIVA = () =>
     calculateSubtotal() * 0.19;
 
+  const calculateDescuento = () => {
+    const subtotal = calculateSubtotal();
+    return subtotal * descuentoAplicado;
+  };
+
   const calculateTotal = () =>
-    calculateSubtotal() + calculateIVA();
+    calculateSubtotal() + calculateIVA() - calculateDescuento();
 
   const formatPrice = (price) =>
     new Intl.NumberFormat('es-CO', {
@@ -77,13 +93,33 @@ export default function PaymentPage() {
       maximumFractionDigits: 0
     }).format(price).replace('COP', '$');
 
+  const aplicarCodigoPromocional = () => {
+    const codigo = codigoPromocional.trim().toUpperCase();
+    
+    if (codigosValidos[codigo]) {
+      setDescuentoAplicado(codigosValidos[codigo]);
+      setCodigoValido(true);
+      setError(null);
+    } else {
+      setError('Código promocional no válido');
+      setDescuentoAplicado(0);
+      setCodigoValido(false);
+    }
+  };
+
+  const removerCodigoPromocional = () => {
+    setCodigoPromocional("");
+    setDescuentoAplicado(0);
+    setCodigoValido(false);
+    setMostrarInputCodigo(false);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
     setSuccess(false);
 
-    // Validación básica para tarjeta de crédito
     if (metodoPago === "TARJETA_CREDITO" && 
         (!formData.numeroTarjeta || !formData.fechaExpiracion || !formData.cvv)) {
       setError('Por favor complete todos los datos de la tarjeta');
@@ -99,7 +135,9 @@ export default function PaymentPage() {
         nombreTitular: formData.nombre || "Anónimo",
         numeroTarjeta: formData.numeroTarjeta,
         fechaExpiracion: formData.fechaExpiracion,
-        monto: calculateTotal()
+        monto: calculateTotal(),
+        descuentoAplicado: calculateDescuento(),
+        codigoPromocional: codigoValido ? codigoPromocional : null
       };
 
       const pagoResp = await axios.post(
@@ -116,7 +154,7 @@ export default function PaymentPage() {
           cantComp: item.quantity,
           valorUnit: item.price,
           valorIva: item.price * item.quantity * 0.19,
-          valorDscto: 0,
+          valorDscto: item.price * item.quantity * descuentoAplicado,
           clienteId: 1,
         };
         return axios.post(
@@ -215,6 +253,56 @@ export default function PaymentPage() {
                 />
 
                 <hr className="my-4"/>
+                
+                {/* Sección de código promocional */}
+                <div className="mb-4">
+                  {!mostrarInputCodigo ? (
+                    <MDBBtn 
+                      color="link" 
+                      onClick={() => setMostrarInputCodigo(true)}
+                      className="p-0 text-decoration-none"
+                    >
+                      ¿Tienes un código promocional?
+                    </MDBBtn>
+                  ) : (
+                    <div className="d-flex align-items-center">
+                      <MDBInput 
+                        label="Código promocional" 
+                        id="codigoPromocional" 
+                        type="text"
+                        wrapperClass="me-2 flex-grow-1"
+                        value={codigoPromocional} 
+                        onChange={(e) => setCodigoPromocional(e.target.value)}
+                      />
+                      <MDBBtn 
+                        color="success" 
+                        size="sm" 
+                        onClick={aplicarCodigoPromocional}
+                        disabled={!codigoPromocional.trim()}
+                      >
+                        Aplicar
+                      </MDBBtn>
+                      {codigoValido && (
+                        <MDBBtn 
+                          color="danger" 
+                          size="sm" 
+                          className="ms-2" 
+                          onClick={removerCodigoPromocional}
+                        >
+                          Remover
+                        </MDBBtn>
+                      )}
+                    </div>
+                  )}
+                  {codigoValido && (
+                    <div className="mt-2">
+                      <MDBBadge color="success" pill>
+                        Descuento del {(descuentoAplicado * 100)}% aplicado
+                      </MDBBadge>
+                    </div>
+                  )}
+                </div>
+
                 <h5 className="mb-4">Método de pago</h5>
                 <MDBRadio 
                   name="flexRadioDefault" 
@@ -310,6 +398,12 @@ export default function PaymentPage() {
                   <MDBListGroupItem className="d-flex justify-content-between align-items-center border-0 px-0 pb-0">
                     Subtotal<span>{formatPrice(calculateSubtotal())}</span>
                   </MDBListGroupItem>
+                  {descuentoAplicado > 0 && (
+                    <MDBListGroupItem className="d-flex justify-content-between align-items-center border-0 px-0 pb-0">
+                      Descuento ({descuentoAplicado * 100}%)
+                      <span className="text-danger">-{formatPrice(calculateDescuento())}</span>
+                    </MDBListGroupItem>
+                  )}
                   <MDBListGroupItem className="d-flex justify-content-between align-items-center border-0 px-0 pb-0">
                     IVA (19%)<span>{formatPrice(calculateIVA())}</span>
                   </MDBListGroupItem>
